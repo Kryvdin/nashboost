@@ -1,0 +1,21 @@
+{
+  "name": "nashboost",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start"
+  },
+  "dependencies": {
+    "google-spreadsheet": "^3.3.0",
+    "next": "14.1.0",
+    "react": "18.2.0",
+    "react-dom": "18.2.0"
+  },
+  "devDependencies": {
+    "@types/node": "24.0.3",
+    "@types/react": "19.1.8",
+    "typescript": "^5.2.2"
+  }
+}
