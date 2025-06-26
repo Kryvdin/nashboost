@@ -1,41 +1,8 @@
-// 📁 app/checkout.tsx
+// 📁 pages/checkout.tsx
 import { useRouter } from 'next/router';
-import React, { useState, useEffect } from 'react';
-
-const accounts = [
-  {
-    id: 'A101',
-    bank: 'American Express',
-    state: 'CA',
-    limit: 10000,
-    age: 4,
-    price: 650,
-  },
-  {
-    id: 'A102',
-    bank: 'Discover',
-    state: 'NY',
-    limit: 5000,
-    age: 2,
-    price: 400,
-  },
-  {
-    id: 'A103',
-    bank: 'Chase',
-    state: 'TX',
-    limit: 15000,
-    age: 5,
-    price: 850,
-  },
-  {
-    id: 'A104',
-    bank: 'Bank of America',
-    state: 'FL',
-    limit: 8000,
-    age: 3,
-    price: 500,
-  },
-];
+import React, { useState } from 'react';
+import Navbar from '../components/Navbar';
+import accounts from '../deprecated/accounts'; // 👈 ЗАМЕНА: импорт массива аккаунтов
 
 export default function Checkout() {
   const router = useRouter();
@@ -61,9 +28,12 @@ export default function Checkout() {
 
   return (
     <div style={{ backgroundColor: '#2C3E50', minHeight: '100vh', padding: '40px', color: '#fff' }}>
+      <Navbar />
+
       <h1 style={{ color: '#C8B560', fontSize: '32px', marginBottom: '20px' }}>
         Вы выбрали следующие аккаунты:
       </h1>
+
       {selectedAccounts.length === 0 ? (
         <p>Нет выбранных аккаунтов.</p>
       ) : (

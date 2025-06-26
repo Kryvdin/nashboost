@@ -1,80 +1,203 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
+import { fetchCardsFromSheet } from '../lib/fetchCards';
 
-const accounts = [
-  { id: 'NC3649', bank: 'Barclays', state: 'NC', serial: '3649', limit: 38400, age: 7.5, position: '1st', price: 1220, label: '*NC - 3649' },
-  { id: 'IL3628', bank: 'Chase', state: 'IL', serial: '3628', limit: 10700, age: 5.5, position: '1st', price: 650, label: '*IL - 3628' },
-  { id: 'TX1856', bank: 'Chase', state: 'TX', serial: '1856', limit: 15000, age: 8.0, position: '1st', price: 800, label: '*TX - 1856' },
-  { id: 'NC2602', bank: 'Chase', state: 'NC', serial: '2602', limit: 15300, age: 16.5, position: '1st', price: 920, label: '*NC - 2602' },
-  { id: 'FL3454', bank: 'Chase', state: 'FL', serial: '3454', limit: 36000, age: 6.0, position: '1st', price: 1080, label: '*FL - 3454' },
-  { id: 'NJ9452', bank: 'Amex', state: 'NJ', serial: '9452', limit: 12000, age: 5.0, position: '1st', price: 1100, label: '*NJ - 9452' },
-  { id: 'GA8821', bank: 'BoA', state: 'GA', serial: '8821', limit: 20000, age: 9.0, position: '1st', price: 1250, label: '*GA - 8821' },
-  { id: 'NY6234', bank: 'Chase', state: 'NY', serial: '6234', limit: 17400, age: 4.5, position: '1st', price: 930, label: '*NY - 6234' },
-  { id: 'CA1980', bank: 'Wells Fargo', state: 'CA', serial: '1980', limit: 22400, age: 11.5, position: '1st', price: 1400, label: '*CA - 1980' },
-  { id: 'TX7719', bank: 'Capital One', state: 'TX', serial: '7719', limit: 8100, age: 3.0, position: '1st', price: 620, label: '*TX - 7719' },
-  // ...ещё 321 карточка — включены при сборке (в реальном коде они будут вставлены сюда)
-];
-
-export default function CardsPage() {
-  const [selected, setSelected] = useState<string[]>([]);
+export default function CardsScreen() {
   const router = useRouter();
+  const [cards, setCards] = useState<any[]>([]);
+  const [selectedCards, setSelectedCards] = useState<any[]>([]);
+  const [showModal, setShowModal] = useState(false);
+  const [name, setName] = useState('');
+  const [surname, setSurname] = useState('');
+  const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
+  const [submitted, setSubmitted] = useState(false);
 
-  const toggleSelect = (id: string) => {
-    setSelected((prev) =>
-      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
-    );
+  useEffect(() => {
+    fetchCardsFromSheet().then((data) => {
+      setCards(data.filter(card => card.Банк));
+    });
+  }, []);
+
+  const toggleCardSelection = (card: any) => {
+    setSelectedCards(prev => {
+      const exists = prev.find(c => c.Банк === card.Банк && c.Лимит === card.Лимит);
+      if (exists) {
+        return prev.filter(c => !(c.Банк === card.Банк && c.Лимит === card.Лимит));
+      } else {
+        return [...prev, card];
+      }
+    });
   };
 
-  const handleSubmit = () => {
-    if (selected.length === 0) {
-      alert('Выберите хотя бы один аккаунт.');
-      return;
-    }
-    router.push({ pathname: '/checkout', query: { selected: JSON.stringify(selected) } });
+  const handleSend = () => {
+    // Тут позже можно будет настроить отправку на email или Telegram
+    console.log('Заявка отправлена:', { name, surname, email, phone, карты: selectedCards });
+    setSubmitted(true);
+    setTimeout(() => {
+      setShowModal(false);
+      setSubmitted(false);
+      setName('');
+      setSurname('');
+      setEmail('');
+      setPhone('');
+      setSelectedCards([]);
+    }, 3000); // скрыть через 3 сек
   };
 
   return (
-    <div style={{ backgroundColor: '#2C3E50', minHeight: '100vh', padding: '20px' }}>
-      <h1 style={{ color: '#C8B560', fontSize: '28px', marginBottom: '20px' }}>Выберите авторизованные аккаунты:</h1>
-      <div>
-        {accounts.map((acc) => (
+    <div style={{ padding: '2rem', backgroundColor: '#2C3E50', minHeight: '100vh', position: 'relative' }}>
+      
+      {/* Кнопка возврата на главную */}
+      <button
+        onClick={() => router.push('/')}
+        style={{
+          backgroundColor: '#C8B560',
+          color: '#2C3E50',
+          padding: '0.5rem 1.25rem',
+          borderRadius: '8px',
+          border: 'none',
+          fontWeight: 'bold',
+          marginBottom: '1.5rem',
+          cursor: 'pointer',
+        }}
+      >
+        ← Назад на главную
+      </button>
+
+      <h1 style={{ color: 'white', marginBottom: '2rem' }}>Доступные AU аккаунты</h1>
+
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))', gap: '2rem' }}>
+        {cards.map((card, index) => (
           <div
-            key={acc.id}
-            onClick={() => toggleSelect(acc.id)}
+            key={index}
+            onClick={() => toggleCardSelection(card)}
             style={{
-              border: selected.includes(acc.id) ? '2px solid #C8B560' : '1px solid #ccc',
-              borderRadius: '10px',
-              padding: '10px',
-              marginBottom: '10px',
-              color: '#fff',
-              backgroundColor: '#34495E',
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              cursor: 'pointer',
+              border: '2px solid gold',
+              borderRadius: '12px',
+              padding: '1.5rem',
+              backgroundColor: selectedCards.includes(card) ? '#C8B560' : '#1B2A38',
+              color: 'white',
+              cursor: 'pointer'
             }}
           >
-            <div>
-              <strong style={{ color: '#C8B560' }}>{acc.label}</strong> — {acc.bank}, {acc.state}, Лимит: ${acc.limit.toLocaleString()}, Возраст: {acc.age} лет, Позиция: {acc.position}
-            </div>
-            <div style={{ color: '#C8B560', fontWeight: 'bold' }}>${acc.price}</div>
+            <h2 style={{ color: '#C8B560' }}>{card.Банк}</h2>
+            <p><strong>Штат:</strong> {card.Штат}</p>
+            <p><strong>Лимит:</strong> ${card.Лимит}</p>
+            <p><strong>Возраст:</strong> {card.Возраст} лет</p>
+            <p><strong>Цена:</strong> {card.Цена}</p>
+            <p><strong>Подача:</strong> </p>
+            <p><strong>Дата подачи:</strong> {card['Дата подачи']}</p>
+            <p><strong>Тип:</strong> {card.Тип}</p>
           </div>
         ))}
       </div>
-      <button
-        onClick={handleSubmit}
-        style={{
-          marginTop: '30px',
-          backgroundColor: '#C8B560',
-          border: 'none',
-          padding: '12px 20px',
-          borderRadius: '8px',
-          fontWeight: 'bold',
-          fontSize: '16px',
-        }}
-      >
-        Перейти к заявке
-      </button>
+
+      {selectedCards.length > 0 && !showModal && (
+        <div
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '50%',
+            transform: 'translateX(-50%)',
+            backgroundColor: '#C8B560',
+            color: '#2C3E50',
+            padding: '1rem 2rem',
+            borderRadius: '10px',
+            fontWeight: 'bold',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.3)',
+            zIndex: 999,
+            cursor: 'pointer'
+          }}
+          onClick={() => setShowModal(true)}
+        >
+          Оформить заявку на {selectedCards.length} карт(ы)
+        </div>
+      )}
+
+      {showModal && (
+        <div style={{
+          position: 'fixed',
+          top: 0, left: 0, width: '100%', height: '100%',
+          backgroundColor: 'rgba(0,0,0,0.7)',
+          display: 'flex', justifyContent: 'center', alignItems: 'center',
+          zIndex: 1000
+        }}>
+          <div style={{
+            backgroundColor: '#1B2A38',
+            padding: '2rem',
+            borderRadius: '12px',
+            width: '90%',
+            maxWidth: '500px',
+            color: 'white',
+            boxShadow: '0 0 20px gold'
+          }}>
+            <h2 style={{ marginBottom: '1rem', color: '#C8B560' }}>
+              {submitted ? 'Заявка отправлена' : 'Оформление заявки'}
+            </h2>
+
+            {!submitted ? (
+              <>
+                <input
+                  type="text"
+                  placeholder="Имя"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  style={inputStyle}
+                />
+                <input
+                  type="text"
+                  placeholder="Фамилия"
+                  value={surname}
+                  onChange={(e) => setSurname(e.target.value)}
+                  style={inputStyle}
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  style={inputStyle}
+                />
+                <input
+                  type="tel"
+                  placeholder="Телефон"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  style={inputStyle}
+                />
+                <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '1.5rem' }}>
+                  <button onClick={handleSend} style={buttonStyle}>Отправить</button>
+                  <button onClick={() => setShowModal(false)} style={{ ...buttonStyle, backgroundColor: '#999' }}>Отмена</button>
+                </div>
+              </>
+            ) : (
+              <p style={{ fontSize: '16px', marginTop: '1rem' }}>
+                Ваша заявка отправлена. Специалист свяжется с вами в ближайшее время.
+              </p>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
+
+const inputStyle = {
+  width: '100%',
+  padding: '0.75rem',
+  marginBottom: '1rem',
+  borderRadius: '6px',
+  border: '1px solid #ccc',
+  fontSize: '16px'
+};
+
+const buttonStyle = {
+  backgroundColor: '#C8B560',
+  color: '#2C3E50',
+  padding: '0.75rem 1.5rem',
+  border: 'none',
+  borderRadius: '8px',
+  fontWeight: 'bold',
+  cursor: 'pointer'
+};
