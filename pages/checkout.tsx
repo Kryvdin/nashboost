@@ -66,7 +66,7 @@ export default function CardsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formPayload = new FormData();
+    const formPayload = new URLSearchParams();
     formPayload.append('Имя', formData.firstName);
     formPayload.append('Фамилия', formData.lastName);
     formPayload.append('Email', formData.email);
@@ -77,7 +77,10 @@ export default function CardsPage() {
     try {
       await fetch('https://script.google.com/macros/s/AKfycbzEloayhx0_XYelZqs0rCNo5haFw5nRPODufJso0iraDjNjuFbJZHB6tECrkwRTYgwg/exec', {
         method: 'POST',
-        body: formPayload
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        body: formPayload.toString()
       });
       alert('Заявка отправлена!');
       setFormData({ firstName: '', lastName: '', email: '', phone: '', selectedAccounts: '' });
