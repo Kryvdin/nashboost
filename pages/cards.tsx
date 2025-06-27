@@ -1,10 +1,21 @@
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
-import { cardsData } from '../deprecated/accounts';
+
+export type Account = {
+  bank: string;
+  state: string;
+  limit: number;
+  age: string;
+  price: number;
+  submissionDate: string;
+  type: string;
+};
 
 export default function CardsPage() {
   const [windowWidth, setWindowWidth] = useState(0);
+  const [cardsData, setCardsData] = useState<Account[]>([]);
+
   const isMobile = windowWidth < 600;
 
   useEffect(() => {
@@ -14,6 +25,28 @@ export default function CardsPage() {
       window.addEventListener('resize', handleResize);
       return () => window.removeEventListener('resize', handleResize);
     }
+  }, []);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const response = await fetch('https://opensheet.elk.sh/1sVp4rsHWCxCe3YaNsODwZrFfhU7NuZ2wialm1LKy5eU/1');
+        const data = await response.json();
+        const parsed = data.map((row: any) => ({
+          bank: row['Банк'],
+          state: row['Штат'],
+          limit: parseInt(row['Лимит'].replace(/[^\d]/g, '')),
+          age: row['Возраст'],
+          price: parseInt(row['Цена']),
+          submissionDate: row['Дата подачи'],
+          type: row['Тип'],
+        }));
+        setCardsData(parsed);
+      } catch (error) {
+        console.error('Ошибка загрузки данных:', error);
+      }
+    };
+    fetchData();
   }, []);
 
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
@@ -49,7 +82,9 @@ export default function CardsPage() {
             }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                 <span style={{ fontWeight: 'bold', color: '#fff' }}>{card.bank}</span>
-                <span style={{ color: '#C8B560' }}>Штат: {card.state} | Лимит: {formatCurrency(card.limit)} | Возраст: {card.age}</span>
+                <span style={{ color: '#C8B560' }}>
+                  Штат: {card.state} | Лимит: {formatCurrency(card.limit)} | Возраст: {card.age} | Дата подачи: {card.submissionDate}
+                </span>
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#C8B560' }}>{formatCurrency(card.price)}</span>
