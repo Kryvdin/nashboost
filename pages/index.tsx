@@ -24,9 +24,8 @@ export default function Home() {
   const [maxAge, setMaxAge] = useState<number | string>('');
   const [selectedCards, setSelectedCards] = useState<Account[]>([]);
   const [showPopup, setShowPopup] = useState(false);
-  const [showForm, setShowForm] = useState(false);
   const [formData, setFormData] = useState({ name: '', surname: '', email: '', phone: '' });
-
+  const [showForm, setShowForm] = useState(false);
   const isMobile = windowWidth < 600;
 
   useEffect(() => {
@@ -100,31 +99,31 @@ export default function Home() {
     setShowForm(true);
   };
 
-  const handleFormSubmit = () => {
+  const handleFormSubmit = async () => {
+    const summary = selectedCards.map(card => `${card.bank} | ${card.state} | $${card.limit} | ${card.age}`).join('; ');
+
+    const submission = {
+      name: formData.name,
+      surname: formData.surname,
+      email: formData.email,
+      phone: formData.phone,
+      cards: summary,
+      _subject: 'Новая заявка с сайта НАШ БУСТ',
+      _captcha: 'false'
+    };
+
+    await fetch('https://formsubmit.co/ajax/kryvdin@gmail.com', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(submission),
+    });
+
     setShowForm(false);
     setSelectedCards([]);
-    setTimeout(() => {
-      setShowPopup(false);
-      const message = `\u2728 Заявка успешно отправлена!\n\n` +
-        `Имя: ${formData.name} ${formData.surname}\n` +
-        `Email: ${formData.email}\n` +
-        `Телефон: ${formData.phone}`;
-      const toast = document.createElement('div');
-      toast.style.position = 'fixed';
-      toast.style.top = '20px';
-      toast.style.left = '50%';
-      toast.style.transform = 'translateX(-50%)';
-      toast.style.backgroundColor = '#C8B560';
-      toast.style.color = '#2C3E50';
-      toast.style.padding = '1rem 2rem';
-      toast.style.borderRadius = '8px';
-      toast.style.fontWeight = 'bold';
-      toast.style.zIndex = '10000';
-      toast.style.boxShadow = '0 0 10px #000';
-      toast.textContent = message;
-      document.body.appendChild(toast);
-      setTimeout(() => document.body.removeChild(toast), 5000);
-    }, 100);
+    setShowPopup(false);
+    alert('Заявка успешно отправлена!');
   };
 
   return (
@@ -138,14 +137,6 @@ export default function Home() {
         <h1 style={{ fontSize: isMobile ? '2.5rem' : '4rem', fontWeight: 900, color: '#C8B560', textShadow: '0 0 8px #C8B560' }}>
           НАШ БУСТ
         </h1>
-      </div>
-
-      <div style={{ textAlign: 'center', margin: '0 auto 2rem', maxWidth: 800, fontSize: '1.1rem', lineHeight: 1.6, color: '#fff' }}>
-        <p>Наш Boost — это возможность временно добавить авторизованные аккаунты к вашему кредитному отчёту на 2 месяца.</p>
-        <p>Это может быстро увеличить ваш кредитный скор и помочь получить одобрение на авто или high-limit карты.</p>
-        <p>Сначала вы выбираете нужные карты, оставляете заявку, а затем специалист свяжется с вами и проверит вашу историю.</p>
-        <p>Если есть проблемы — мы подскажем, как их устранить и подготовим вас к добавлению AU аккаунтов.</p>
-        <p>После проверки карты будут добавлены к вашему кредитному отчёту, и начнётся ваш кредитный буст!</p>
       </div>
 
       <div style={{ display: 'flex', flexWrap: 'wrap', gap: '1rem', marginBottom: '2rem' }}>
