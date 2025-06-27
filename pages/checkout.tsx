@@ -74,7 +74,7 @@ export default function CardsPage() {
     formPayload.append('Выбранные аккаунты', formData.selectedAccounts);
 
     try {
-      await fetch('https://script.google.com/macros/s/AKfycbzEloayhx0_XYelZqs0rCNo5haFw5nRPODufJso0iraDjNjuFbJZHB6tECrkwRTYgwg/exec', {
+      await fetch('https://script.google.com/macros/s/AKfycbzKaigbCbQo_PTbMS1hOId6ZxpQwqR8O5p8WXS4YdA/dev', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
