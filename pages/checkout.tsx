@@ -72,7 +72,6 @@ export default function CardsPage() {
     formPayload.append('Email', formData.email);
     formPayload.append('Телефон', formData.phone);
     formPayload.append('Выбранные аккаунты', formData.selectedAccounts);
-    formPayload.append('Время отправки', new Date().toLocaleString());
 
     try {
       await fetch('https://script.google.com/macros/s/AKfycbzEloayhx0_XYelZqs0rCNo5haFw5nRPODufJso0iraDjNjuFbJZHB6tECrkwRTYgwg/exec', {
