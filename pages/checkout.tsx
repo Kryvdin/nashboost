@@ -1,7 +1,8 @@
+// 📁 pages/checkout.tsx
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
-import Form from '../components/Form';
+
 export type Account = {
   bank: string;
   state: string;
@@ -15,6 +16,13 @@ export type Account = {
 export default function CardsPage() {
   const [windowWidth, setWindowWidth] = useState(0);
   const [cardsData, setCardsData] = useState<Account[]>([]);
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    phone: '',
+    selectedAccounts: ''
+  });
 
   const isMobile = windowWidth < 600;
 
@@ -49,6 +57,34 @@ export default function CardsPage() {
     };
     fetchData();
   }, []);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const formPayload = new FormData();
+    formPayload.append('Имя', formData.firstName);
+    formPayload.append('Фамилия', formData.lastName);
+    formPayload.append('Email', formData.email);
+    formPayload.append('Телефон', formData.phone);
+    formPayload.append('Выбранные аккаунты', formData.selectedAccounts);
+    formPayload.append('Время отправки', new Date().toLocaleString());
+
+    try {
+      await fetch('https://script.google.com/macros/s/AKfycbzEloayhx0_XYelZqs0rCNo5haFw5nRPODufJso0iraDjNjuFbJZHB6tECrkwRTYgwg/exec', {
+        method: 'POST',
+        body: formPayload
+      });
+      alert('Заявка отправлена!');
+      setFormData({ firstName: '', lastName: '', email: '', phone: '', selectedAccounts: '' });
+    } catch (error) {
+      alert('Ошибка при отправке формы. Попробуйте снова.');
+    }
+  };
 
   const formatCurrency = (amount: number) => `$${amount.toLocaleString()}`;
 
@@ -102,6 +138,15 @@ export default function CardsPage() {
             </div>
           ))}
         </div>
+
+        <form onSubmit={handleSubmit} className="space-y-4" style={{ marginTop: '3rem', maxWidth: 600 }}>
+          <input name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Имя" className="w-full border p-2" />
+          <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Фамилия" className="w-full border p-2" />
+          <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full border p-2" />
+          <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Телефон" className="w-full border p-2" />
+          <textarea name="selectedAccounts" value={formData.selectedAccounts} onChange={handleChange} placeholder="Выбранные аккаунты" className="w-full border p-2" />
+          <button type="submit" className="bg-gold text-white py-2 px-4 rounded">Отправить заявку</button>
+        </form>
       </main>
     </div>
   );
