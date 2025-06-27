@@ -74,13 +74,16 @@ export default function CardsPage() {
     formPayload.append('Выбранные аккаунты', formData.selectedAccounts);
 
     try {
-      await fetch('https://script.google.com/macros/s/AKfycbzKaigbCbQo_PTbMS1hOId6ZxpQwqR8O5p8WXS4YdA/dev', {
+      const response = await fetch('https://script.google.com/macros/s/AKfycbxUVnEFOtmp9HT7JAb1LWzbmsZ7ooJLtJGWYvgnemaK9b5J4vV_SmK6Z4Ka9her2V2Y/exec', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'
         },
         body: formPayload.toString()
       });
+
+      if (!response.ok) throw new Error('Network response was not ok');
+
       alert('Заявка отправлена!');
       setFormData({ firstName: '', lastName: '', email: '', phone: '', selectedAccounts: '' });
     } catch (error) {
