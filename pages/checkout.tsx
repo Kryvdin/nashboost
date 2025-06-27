@@ -45,7 +45,7 @@ export default function CardsPage() {
           state: row['Штат'],
           limit: parseInt(row['Лимит'].replace(/[^\d]/g, '')),
           age: row['Возраст'],
-          price: parseInt(row['Цена']),
+          price: parseInt(row['Цена']) + 300,
           submissionDate: row['Дата подачи'],
           type: row['Тип'],
           id: index + 1
@@ -72,6 +72,7 @@ export default function CardsPage() {
     formPayload.append('Email', formData.email);
     formPayload.append('Телефон', formData.phone);
     formPayload.append('Выбранные аккаунты', formData.selectedAccounts);
+    formPayload.append('Время отправки', new Date().toLocaleString());
 
     try {
       const response = await fetch('https://script.google.com/macros/s/AKfycbxUVnEFOtmp9HT7JAb1LWzbmsZ7ooJLtJGWYvgnemaK9b5J4vV_SmK6Z4Ka9her2V2Y/exec', {
