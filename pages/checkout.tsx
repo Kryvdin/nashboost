@@ -67,30 +67,32 @@ export default function CardsPage() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    const formPayload = new URLSearchParams();
-    formPayload.append('Имя', formData.firstName);
-    formPayload.append('Фамилия', formData.lastName);
-    formPayload.append('Email', formData.email);
-    formPayload.append('Телефон', formData.phone);
-    formPayload.append('Выбранные аккаунты', selectedAccountsList.join('\n'));
-    formPayload.append('Время отправки', new Date().toLocaleString());
+    const formPayload = {
+      Имя: formData.firstName,
+      Фамилия: formData.lastName,
+      Email: formData.email,
+      Телефон: formData.phone,
+      'Выбранные аккаунты': selectedAccountsList.join('\n'),
+      'Время отправки': new Date().toLocaleString()
+    };
 
     try {
-      const response = await fetch('https://script.google.com/macros/s/AKfycbxUVnEFOtmp9HT7JAb1LWzbmsZ7ooJLtJGWYvgnemaK9b5J4vV_SmK6Z4Ka9her2V2Y/exec', {
+      const response = await fetch('https://formsubmit.co/kryvdin@gmail.com', {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
+          'Content-Type': 'application/json',
+          Accept: 'application/json'
         },
-        body: formPayload.toString()
+        body: JSON.stringify(formPayload)
       });
 
-      if (!response.ok) throw new Error('Network response was not ok');
+      if (!response.ok) throw new Error('Network error');
 
       alert('Заявка отправлена!');
       setFormData({ firstName: '', lastName: '', email: '', phone: '', selectedAccounts: '' });
       setSelectedAccountsList([]);
     } catch (error) {
-      alert('Ошибка при отправке формы. Попробуйте снова.');
+      alert('Ошибка при отправке. Попробуйте снова.');
     }
   };
 
@@ -169,7 +171,7 @@ export default function CardsPage() {
           <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Фамилия" className="w-full border p-2" />
           <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full border p-2" />
           <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Телефон" className="w-full border p-2" />
-        <button type="submit" className="bg-gold text-white py-2 px-4 rounded">Отправить заявку</button>
+          <button type="submit" className="bg-gold text-white py-2 px-4 rounded">Отправить заявку</button>
         </form>
       </main>
     </div>
