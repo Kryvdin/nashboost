@@ -1,7 +1,7 @@
 import Head from 'next/head';
 import Navbar from '../components/Navbar';
 import { useState, useEffect } from 'react';
-
+import Form from '../components/Form';
 export type Account = {
   bank: string;
   state: string;
