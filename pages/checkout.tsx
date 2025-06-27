@@ -16,6 +16,7 @@ export type Account = {
 export default function CardsPage() {
   const [windowWidth, setWindowWidth] = useState(0);
   const [cardsData, setCardsData] = useState<Account[]>([]);
+  const [selectedAccountsList, setSelectedAccountsList] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -71,7 +72,7 @@ export default function CardsPage() {
     formPayload.append('Фамилия', formData.lastName);
     formPayload.append('Email', formData.email);
     formPayload.append('Телефон', formData.phone);
-    formPayload.append('Выбранные аккаунты', formData.selectedAccounts);
+    formPayload.append('Выбранные аккаунты', selectedAccountsList.join('\n'));
     formPayload.append('Время отправки', new Date().toLocaleString());
 
     try {
@@ -87,6 +88,7 @@ export default function CardsPage() {
 
       alert('Заявка отправлена!');
       setFormData({ firstName: '', lastName: '', email: '', phone: '', selectedAccounts: '' });
+      setSelectedAccountsList([]);
     } catch (error) {
       alert('Ошибка при отправке формы. Попробуйте снова.');
     }
@@ -131,27 +133,43 @@ export default function CardsPage() {
               </div>
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 <span style={{ fontWeight: 'bold', fontSize: '1.2rem', color: '#C8B560' }}>{formatCurrency(card.price)}</span>
-                <button style={{
-                  backgroundColor: '#C8B560',
-                  color: '#2C3E50',
-                  padding: '0.6rem 1.2rem',
-                  borderRadius: 8,
-                  fontWeight: 'bold',
-                  border: 'none',
-                  cursor: 'pointer'
-                }}>Оставить заявку</button>
+                <button
+                  onClick={() => {
+                    const description = `${card.bank} | Лимит: ${formatCurrency(card.limit)} | Возраст: ${card.age}`;
+                    setSelectedAccountsList((prev) => [...prev, description]);
+                  }}
+                  style={{
+                    backgroundColor: '#C8B560',
+                    color: '#2C3E50',
+                    padding: '0.6rem 1.2rem',
+                    borderRadius: 8,
+                    fontWeight: 'bold',
+                    border: 'none',
+                    cursor: 'pointer'
+                  }}
+                >Оставить заявку</button>
               </div>
             </div>
           ))}
         </div>
+
+        {selectedAccountsList.length > 0 && (
+          <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#1A2633', borderRadius: 8 }}>
+            <h3 style={{ color: '#C8B560', marginBottom: 8 }}>Вы выбрали:</h3>
+            <ul>
+              {selectedAccountsList.map((item, idx) => (
+                <li key={idx}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        )}
 
         <form onSubmit={handleSubmit} className="space-y-4" style={{ marginTop: '3rem', maxWidth: 600 }}>
           <input name="firstName" value={formData.firstName} onChange={handleChange} placeholder="Имя" className="w-full border p-2" />
           <input name="lastName" value={formData.lastName} onChange={handleChange} placeholder="Фамилия" className="w-full border p-2" />
           <input name="email" value={formData.email} onChange={handleChange} placeholder="Email" className="w-full border p-2" />
           <input name="phone" value={formData.phone} onChange={handleChange} placeholder="Телефон" className="w-full border p-2" />
-          <textarea name="selectedAccounts" value={formData.selectedAccounts} onChange={handleChange} placeholder="Выбранные аккаунты" className="w-full border p-2" />
-          <button type="submit" className="bg-gold text-white py-2 px-4 rounded">Отправить заявку</button>
+        <button type="submit" className="bg-gold text-white py-2 px-4 rounded">Отправить заявку</button>
         </form>
       </main>
     </div>
