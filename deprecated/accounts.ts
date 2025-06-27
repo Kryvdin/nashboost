@@ -1,4 +1,4 @@
-type Account = {
+export type Account = {
   id: string;
   bank: string;
   state: string;
@@ -1467,5 +1467,4 @@ const accounts = [
     price: 500,
   }
   ];
-
-export default accounts;
+export const cardsData = accounts;
